@@ -1,0 +1,39 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ============================================================
+    // GLOBAL: Deny all access by default
+    // Prevents any unauthenticated request from reading, writing,
+    // or listing files. No public URLs are ever served from Storage.
+    // ============================================================
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // ============================================================
+    // DOCUMENTS path: Documents/{employerId}/{employeeId}/{yearMonth}/{filename}
+    // ============================================================
+    match /Documents/{employerId}/{employeeId}/{yearMonth}/{fileName} {
+
+      // Prevents Employer A from downloading Employer B's employee documents
+      // (e.g. ID scans, contracts) by guessing or constructing the storage path.
+      // Only the owning employer or an admin can read files under their UID path.
+      allow read: if request.auth != null && (
+        request.auth.uid == employerId ||
+        request.auth.token.role == 'admin'
+      );
+
+      // Prevents an attacker from uploading malicious or fraudulent files under
+      // another employer's storage path. The authenticated user's UID must match
+      // the employerId path segment.
+      // Also enforces:
+      //   - File type: only PDFs (prevents executable or script uploads)
+      //   - File size: max 10MB (prevents storage abuse / denial-of-service via large uploads)
+      allow write: if request.auth != null
+        && request.auth.uid == employerId
+        && request.resource.contentType == 'application/pdf'
+        && request.resource.size <= 10 * 1024 * 1024;
+    }
+  }
+}

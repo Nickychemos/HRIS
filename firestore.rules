@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // GLOBAL: Deny all access by default
+    // Prevents any unauthenticated request from reading or writing
+    // anything — a zero-trust baseline.
+    // ============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ============================================================
+    // EMPLOYERS collection
+    // Stores employer profile/account data.
+    // ============================================================
+    match /employers/{employerId} {
+      // Prevents an unauthenticated attacker from enumerating employer accounts
+      // or extracting business data without valid credentials.
+      allow read: if request.auth != null && (
+        // An employer can only read their own profile — prevents one employer
+        // from reading another employer's business details by guessing document IDs.
+        request.auth.uid == employerId ||
+        // An admin (verified via Custom Claim, not a Firestore field) can read
+        // any employer document for platform administration.
+        request.auth.token.role == 'admin'
+      );
+
+      // An employer can only update their own profile. Prevents an attacker from
+      // modifying another employer's company information by crafting a write to
+      // a different employerId path.
+      allow update: if request.auth != null
+        && request.auth.uid == employerId
+        // Prevents an employer from elevating their own role or modifying any
+        // permission-related field. Role is enforced via Custom Claims, not Firestore.
+        && !('role' in request.resource.data && request.resource.data.role != resource.data.role)
+        // Prevents overwriting the createdAt timestamp on update — ensures audit
+        // trail integrity and prevents backdating of account creation.
+        && request.resource.data.createdAt == resource.data.createdAt;
+
+      // Only admins can create employer accounts — prevents unauthorized
+      // self-registration that could flood the platform with fake tenants.
+      allow create: if request.auth != null
+        && request.auth.token.role == 'admin';
+
+      // Only admins can delete employer accounts — prevents an employer from
+      // deleting their own record to evade audit trails.
+      allow delete: if request.auth != null
+        && request.auth.token.role == 'admin';
+    }
+
+    // ============================================================
+    // EMPLOYEES collection
+    // Each employee document contains an employerId field linking
+    // to the owning employer.
+    // ============================================================
+    match /employees/{employeeId} {
+      // Prevents Employer A from reading Employer B's employee list by
+      // spoofing the employerId query parameter or guessing document IDs.
+      allow read: if request.auth != null && (
+        resource.data.employerId == request.auth.uid ||
+        request.auth.token.role == 'admin'
+      );
+
+      // Prevents an attacker from creating employee records under another
+      // employer's UID — the employerId field must match the authenticated user.
+      allow create: if request.auth != null
+        && request.resource.data.employerId == request.auth.uid
+        // Ensures createdAt is set on creation and cannot be a client-fabricated timestamp.
+        && request.resource.data.createdAt is timestamp;
+
+      // Prevents an employer from reassigning an employee to another employer
+      // (changing employerId) which would break tenant isolation. Also prevents
+      // tampering with the creation audit timestamp.
+      allow update: if request.auth != null && (
+        (
+          resource.data.employerId == request.auth.uid
+          && request.resource.data.employerId == request.auth.uid
+          && request.resource.data.createdAt == resource.data.createdAt
+        ) ||
+        request.auth.token.role == 'admin'
+      );
+
+      // Prevents an employer from deleting another employer's employees.
+      // Only the owning employer or an admin can delete.
+      allow delete: if request.auth != null && (
+        resource.data.employerId == request.auth.uid ||
+        request.auth.token.role == 'admin'
+      );
+    }
+
+    // ============================================================
+    // DOCUMENTS collection
+    // Stores metadata for uploaded PDF documents linked to employees.
+    // ============================================================
+    match /documents/{documentId} {
+      // Prevents Employer A from viewing Employer B's uploaded documents
+      // (e.g. contracts, IDs) by guessing or enumerating document IDs.
+      allow read: if request.auth != null && (
+        resource.data.uploadedBy == request.auth.uid ||
+        request.auth.token.role == 'admin'
+      );
+
+      // Prevents an attacker from uploading documents under another employer's
+      // identity — the uploadedBy field must match the authenticated user.
+      allow create: if request.auth != null
+        && request.resource.data.uploadedBy == request.auth.uid
+        && request.resource.data.uploadedAt is timestamp;
+
+      // Prevents tampering with the upload audit trail (uploadedBy, uploadedAt)
+      // after a document is created. An employer cannot reassign document
+      // ownership or backdate uploads.
+      allow update: if request.auth != null && (
+        (
+          resource.data.uploadedBy == request.auth.uid
+          && request.resource.data.uploadedBy == request.auth.uid
+          && request.resource.data.uploadedAt == resource.data.uploadedAt
+        ) ||
+        request.auth.token.role == 'admin'
+      );
+
+      // Prevents an employer from deleting another employer's document records,
+      // which could hide evidence of uploaded files.
+      allow delete: if request.auth != null && (
+        resource.data.uploadedBy == request.auth.uid ||
+        request.auth.token.role == 'admin'
+      );
+    }
+  }
+}

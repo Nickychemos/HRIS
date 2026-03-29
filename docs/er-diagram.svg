@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" font-family="Arial, sans-serif">
+  <!-- Background -->
+  <rect width="900" height="680" fill="#fafafa" rx="8"/>
+  <text x="450" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a2e">HRIS Platform — Entity-Relationship Diagram</text>
+
+  <!-- EMPLOYERS Entity -->
+  <rect x="50" y="70" width="260" height="200" rx="8" fill="#e8f4fd" stroke="#3498db" stroke-width="2"/>
+  <rect x="50" y="70" width="260" height="36" rx="8" fill="#3498db"/>
+  <rect x="50" y="98" width="260" height="8" fill="#3498db"/>
+  <text x="180" y="95" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">employers</text>
+  <text x="65" y="130" font-size="13" fill="#333">id : string (PK = Auth UID)</text>
+  <text x="65" y="152" font-size="13" fill="#333">companyName : string</text>
+  <text x="65" y="174" font-size="13" fill="#333">email : string</text>
+  <text x="65" y="196" font-size="13" fill="#888">createdAt : timestamp</text>
+  <text x="65" y="214" font-size="10" fill="#e74c3c">↑ server-set, immutable on update</text>
+  <text x="65" y="254" font-size="11" fill="#3498db">★ Security Rules: request.auth.uid</text>
+
+  <!-- EMPLOYEES Entity -->
+  <rect x="50" y="340" width="260" height="290" rx="8" fill="#e8f8e8" stroke="#27ae60" stroke-width="2"/>
+  <rect x="50" y="340" width="260" height="36" rx="8" fill="#27ae60"/>
+  <rect x="50" y="368" width="260" height="8" fill="#27ae60"/>
+  <text x="180" y="365" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">employees</text>
+  <text x="65" y="400" font-size="13" fill="#333">id : string (PK, auto-gen)</text>
+  <text x="65" y="422" font-size="13" fill="#333">fullName : string</text>
+  <text x="65" y="444" font-size="13" fill="#333">nationalId : string</text>
+  <text x="65" y="466" font-size="13" fill="#333">jobTitle : string</text>
+  <text x="65" y="488" font-size="13" fill="#333">department : string</text>
+  <text x="65" y="510" font-size="13" fill="#333">startDate : string</text>
+  <text x="65" y="532" font-size="13" fill="#333">status : string (active|inactive)</text>
+  <text x="65" y="554" font-size="13" fill="#e67e22">employerId : string (FK)</text>
+  <text x="65" y="576" font-size="13" fill="#888">createdAt : timestamp</text>
+  <text x="65" y="598" font-size="13" fill="#888">updatedAt : timestamp</text>
+  <text x="65" y="618" font-size="10" fill="#e74c3c">↑ server-set, immutable on update</text>
+
+  <!-- DOCUMENTS Entity -->
+  <rect x="570" y="200" width="280" height="280" rx="8" fill="#fef5e7" stroke="#f39c12" stroke-width="2"/>
+  <rect x="570" y="200" width="280" height="36" rx="8" fill="#f39c12"/>
+  <rect x="570" y="228" width="280" height="8" fill="#f39c12"/>
+  <text x="710" y="225" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">documents</text>
+  <text x="585" y="260" font-size="13" fill="#333">id : string (PK, auto-gen)</text>
+  <text x="585" y="282" font-size="13" fill="#e67e22">employeeId : string (FK)</text>
+  <text x="585" y="304" font-size="13" fill="#e67e22">uploadedBy : string (FK)</text>
+  <text x="585" y="326" font-size="13" fill="#888">uploadedAt : timestamp</text>
+  <text x="585" y="348" font-size="13" fill="#333">storagePath : string</text>
+  <text x="585" y="370" font-size="13" fill="#333">fileName : string</text>
+  <text x="585" y="392" font-size="13" fill="#333">fileSize : number</text>
+  <text x="585" y="418" font-size="10" fill="#e74c3c">↑ uploadedAt: server-set, immutable</text>
+  <text x="585" y="436" font-size="10" fill="#e74c3c">↑ storagePath: used in Storage Rules</text>
+  <text x="585" y="460" font-size="11" fill="#f39c12">★ Security Rules: uploadedBy = auth.uid</text>
+
+  <!-- Relationship: employers → employees (1:N) -->
+  <line x1="180" y1="270" x2="180" y2="340" stroke="#333" stroke-width="2"/>
+  <polygon points="175,335 185,335 180,345" fill="#333"/>
+  <text x="190" y="310" font-size="12" fill="#555">1 : N</text>
+  <text x="185" y="325" font-size="10" fill="#888">employerId</text>
+
+  <!-- Relationship: employees → documents (1:N) -->
+  <line x1="310" y1="480" x2="570" y2="350" stroke="#333" stroke-width="2"/>
+  <polygon points="565,345 565,355 575,350" fill="#333"/>
+  <text x="420" y="400" font-size="12" fill="#555">1 : N</text>
+  <text x="420" y="415" font-size="10" fill="#888">employeeId</text>
+
+  <!-- Relationship: employers → documents (1:N) -->
+  <line x1="310" y1="170" x2="570" y2="280" stroke="#333" stroke-width="2" stroke-dasharray="6,4"/>
+  <polygon points="565,275 565,285 575,280" fill="#333"/>
+  <text x="440" y="210" font-size="12" fill="#555">1 : N</text>
+  <text x="440" y="225" font-size="10" fill="#888">uploadedBy</text>
+
+  <!-- Legend -->
+  <rect x="570" y="540" width="280" height="120" rx="6" fill="#f8f9fa" stroke="#ddd" stroke-width="1"/>
+  <text x="585" y="562" font-size="13" font-weight="bold" fill="#333">Legend</text>
+  <text x="585" y="582" font-size="12" fill="#e67e22">● FK = Foreign Key field</text>
+  <text x="585" y="600" font-size="12" fill="#888">● grey = server-set field</text>
+  <text x="585" y="618" font-size="12" fill="#e74c3c">● red = immutable / rule-enforced</text>
+  <line x1="585" y1="630" x2="640" y2="630" stroke="#333" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="645" y="635" font-size="12" fill="#555">= indirect relationship</text>
+</svg>
