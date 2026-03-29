@@ -297,3 +297,111 @@ body {
   font-size: 1.25rem;
   color: #666;
 }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .navbar-brand a {
+    font-size: 1.1rem;
+  }
+
+  .navbar-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .navbar-links a {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .navbar-user {
+    font-size: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .navbar-user span {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .page-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .page-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .employee-form,
+  .upload-form {
+    padding: 1rem;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-card {
+    padding: 1.5rem;
+    margin: 0 0.5rem;
+  }
+
+  .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .error-message,
+  .success-message {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-links a {
+    font-size: 0.75rem;
+  }
+
+  .navbar-user span {
+    max-width: 120px;
+  }
+
+  .page-container h1 {
+    font-size: 1.25rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
