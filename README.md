@@ -462,7 +462,7 @@ The exact mechanism that prevents Employer A from accessing Employer B's data:
 
 ### What Was Not Completed and Why
 
-1. **Firebase project creation and Vercel deployment**: These require interactive setup in Firebase Console and Vercel dashboard, which are manual steps outside the codebase. The code is structured and ready for deployment.
+1. **PR into `dev` branch**: The assessment instructions specify submitting a PR from a feature branch into `dev`. However, the base repository (`arthurkonexio/HRIS`) only has a `main` branch — no `dev` branch exists. The PR was therefore submitted into `main`. A `dev` branch was created in the fork to demonstrate the intended branching strategy.
 
 2. **End-to-end testing**: No automated tests were written. Time was prioritized on architecture, security rules, and documentation — which carry 75% of the evaluation weight.
 
